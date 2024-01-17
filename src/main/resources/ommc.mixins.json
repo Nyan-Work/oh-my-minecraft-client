@@ -42,6 +42,7 @@
     "feature.highlightWaypoint.MixinChatHud",
     "feature.highlightWaypoint.MixinGameRenderer",
     "feature.highlightWaypoint.MixinLevelRenderer",
+    "feature.highlightWaypoint.MixinMutableComponent",
     "feature.preventIntentionalGameDesign.MixinClientPlayerInteractionManager",
     "feature.removeBreakCooldown.MixinClientPlayerInteractionManager",
     "feature.worldEaterMineHelper.MixinJsonUnbakedModel",
