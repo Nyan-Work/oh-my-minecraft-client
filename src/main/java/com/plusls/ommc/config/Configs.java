@@ -189,7 +189,7 @@ public class Configs {
             "minecraft:poppy", "minecraft:dandelion");
 
     @Config(category = ConfigCategory.LISTS)
-    public static ArrayList<String> breakBlockBlackList = Lists.newArrayList("minecraft:budding_amethyst", "_bud");
+    public static ArrayList<String> breakBlockBlackList = Lists.newArrayList("minecraft:budding_amethyst", "_bud", "minecraft:suspicious_");
 
     @Config(category = ConfigCategory.LISTS)
     public static ArrayList<String> breakScaffoldingWhiteList = Lists.newArrayList("minecraft:air", "minecraft:scaffolding");
