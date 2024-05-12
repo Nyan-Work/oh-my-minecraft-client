@@ -315,7 +315,7 @@ public class SortInventoryUtil {
                     int res1 = comparator.compare(stack1, stack2);
                     int res2 = comparator.compare(stack2, stack1);
 
-                    if ( !( ( res1 > 0 && res2 < 0 ) || ( res1 < 0 && res2 > 0 ) || ( res1 == 0 && res2 == 0 && ItemStack.isSameItemSameTags(stack1, stack2) ) ) ) {
+                    if ( !( ( res1 > 0 && res2 < 0 ) || ( res1 < 0 && res2 > 0 ) || ( res1 == 0 && res2 == 0 && stack1 == stack2 ) ) ) {
                         OhMyMinecraftClientReference.getLogger().error("Conflict result when comparing slot {} (name={}) with slot {} (name={}), result={} and {}",
                                                                            i, stack1.getItem().getName(stack1).toString(),
                                                                            j, stack2.getItem().getName(stack2).toString(),
