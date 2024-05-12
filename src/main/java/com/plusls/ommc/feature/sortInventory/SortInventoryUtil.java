@@ -302,7 +302,29 @@ public class SortInventoryUtil {
             sortedItemStacks.add(itemStack);
         }
 
-        sortedItemStacks.sort(new ItemStackComparator());
+        try {
+            sortedItemStacks.sort(new ItemStackComparator());
+        } catch (IllegalArgumentException e) {
+            OhMyMinecraftClientReference.getLogger().info("An IllegalArgumentException caught. Run comparator test.");
+            ItemStackComparator comparator = new ItemStackComparator();
+            for (int i = 0; i < endSlot; i++) {
+                for (int j = i + 1; j < endSlot; j++) {
+                    ItemStack stack1 = sortedItemStacks.get(i);
+                    ItemStack stack2 = sortedItemStacks.get(j);
+
+                    int res1 = comparator.compare(stack1, stack2);
+                    int res2 = comparator.compare(stack2, stack1);
+
+                    if ( !( ( res1 > 0 && res2 < 0 ) || ( res1 < 0 && res2 > 0 ) || ( res1 == 0 && res2 == 0 && ItemStack.isSameItemSameTags(stack1, stack2) ) ) ) {
+                        OhMyMinecraftClientReference.getLogger().error("Conflict result when comparing slot {} (name={}) with slot {} (name={}), result={} and {}",
+                                                                           i, stack1.getItem().getName(stack1).toString(),
+                                                                           j, stack2.getItem().getName(stack2).toString(),
+                                                                           res1, res2);
+                    }
+                }
+            }
+            throw e;
+        }
 
         // 倒序遍历来确保少的方块放在后面，多的方块放在前面
         for (int i = endSlot - 1; i >= startSlot; i--) {
@@ -415,7 +437,7 @@ public class SortInventoryUtil {
                 Block blockA = ((BlockItem) a.getItem()).getBlock();
                 Block blockB = ((BlockItem) b.getItem()).getBlock();
 
-                if (blockA instanceof IDyeBlock && blockB instanceof IDyeBlock) {
+                if (blockA instanceof IDyeBlock && blockB instanceof IDyeBlock && blockA.getClass() == blockB.getClass()) {
                     return SortInventoryUtil.DYE_COLOR_MAPPING.get(((IDyeBlock) blockA).ommc$getColor()) -
                             SortInventoryUtil.DYE_COLOR_MAPPING.get(((IDyeBlock) blockB).ommc$getColor());
                 }
@@ -429,6 +451,8 @@ public class SortInventoryUtil {
                 //#endif
 
                 if (SortInventoryUtil.bothContains("wool", ida, idb) ||
+                        SortInventoryUtil.bothContains("carpet", ida, idb) ||
+                        SortInventoryUtil.bothContains("bed", ida, idb) ||
                         SortInventoryUtil.bothContains("terracotta", ida, idb) ||
                         SortInventoryUtil.bothContains("concrete", ida, idb) ||
                         SortInventoryUtil.bothContains("candle", ida, idb)) {
