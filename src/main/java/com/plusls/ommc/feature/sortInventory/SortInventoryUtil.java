@@ -3,6 +3,7 @@ package com.plusls.ommc.feature.sortInventory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.platform.Window;
+import com.plusls.ommc.OhMyMinecraftClientReference;
 import com.plusls.ommc.api.sortInventory.IDyeBlock;
 import com.plusls.ommc.config.Configs;
 import com.plusls.ommc.mixin.accessor.AccessorAbstractContainerScreen;
