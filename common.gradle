@@ -13,7 +13,6 @@ int mcVersion = 1
 
 preprocess {
     mcVersion = vars.get().get("MC")
-    tabIndentation.set(false)
 }
 
 repositories {
@@ -169,7 +168,7 @@ tasks.findAll { it.name in [
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.setEncoding("UTF-8")
+//    options.setEncoding("UTF-8")
     options.getCompilerArgs().add("-Xdiags:verbose")
 }
 
