@@ -76,10 +76,6 @@ public abstract class MixinClientPlayerEntity extends AbstractClientPlayer {
             return;
         }
         prevFallFlying = this.isFallFlying();
-        //#if MC >= 11903
-        AutoSwitchElytraUtil.autoSwitch(AutoSwitchElytraUtil.CHEST_SLOT_IDX, this.minecraft, (LocalPlayer) (Object) this, itemStack -> BuiltInRegistries.ITEM.getKey(itemStack.getItem()).toString().contains("_chestplate"));
-        //#else
-        //$$ AutoSwitchElytraUtil.autoSwitch(AutoSwitchElytraUtil.CHEST_SLOT_IDX, this.minecraft, (LocalPlayer) (Object) this, itemStack -> Registry.ITEM.getKey(itemStack.getItem()).toString().contains("_chestplate"));
-        //#endif
+        AutoSwitchElytraUtil.autoSwitch(AutoSwitchElytraUtil.CHEST_SLOT_IDX, this.minecraft, (LocalPlayer) (Object) this, itemStack -> AutoSwitchElytraUtil.isChestArmor(itemStack));
     }
 }
