@@ -17,7 +17,7 @@ public class AutoSwitchElytraUtil {
     public static final int CHEST_SLOT_IDX = 6;
 
     public static boolean myCheckFallFlying(Player player) {
-        return !player.onGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION);
+        return !player.onGround() && !player.isFallFlying() && !player.isInLiquid() && !player.hasEffect(MobEffects.LEVITATION);
     }
 
     public static boolean isChestArmor(ItemStack itemStack) {
