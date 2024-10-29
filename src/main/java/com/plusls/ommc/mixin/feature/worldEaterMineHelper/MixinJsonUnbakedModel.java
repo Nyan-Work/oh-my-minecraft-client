@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import top.hendrixshen.magiclib.api.compat.minecraft.resources.ResourceLocationCompat;
 import top.hendrixshen.magiclib.util.MiscUtil;
 
 import java.util.List;
@@ -92,11 +93,7 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
         }
 
         String[] splitResult = identifier.getPath().split("/");
-        //#if MC > 12006
-        //$$ ResourceLocation blockId = ResourceLocation.parse(splitResult[splitResult.length - 1]);
-        //#else
-        ResourceLocation blockId = new ResourceLocation(splitResult[splitResult.length - 1]);
-        //#endif
+        ResourceLocation blockId = ResourceLocationCompat.parse(splitResult[splitResult.length - 1]);
         //#if MC >= 11903
         Block block = BuiltInRegistries.BLOCK.get(blockId);
         //#else
@@ -114,7 +111,7 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
         originalModelElements.clear();
 
         for (BlockElement modelElement : originalModelElementsBackup) {
-            Vector3f origin = new Vector3f(0F, 80F, 180F);
+            Vector3f origin = new Vector3f(0F, 67F, 150F);
             origin.mul(0.0625F);
             BlockElementRotation newModelRotation = new BlockElementRotation(origin, Direction.Axis.X, 45, false);
             Map<Direction, BlockElementFace> faces = Maps.newHashMap();
