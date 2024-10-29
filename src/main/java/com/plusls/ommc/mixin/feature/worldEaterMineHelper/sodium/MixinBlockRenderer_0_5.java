@@ -21,7 +21,7 @@ import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
         require = {
                 @Dependency(value = "minecraft", versionPredicates = ">1.19.4"),
                 // TODO: Once sodium 0.5+ backport to MC 1.19.4 and below, we can compat it.
-                @Dependency(value = "sodium", versionPredicates = "~0.5")
+                @Dependency(value = "sodium", versionPredicates = ">=0.5- <0.6-")
         }
 )
 @Mixin(value = BlockRenderer.class, remap = false)

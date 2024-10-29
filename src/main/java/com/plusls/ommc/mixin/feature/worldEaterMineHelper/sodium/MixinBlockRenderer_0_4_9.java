@@ -19,7 +19,7 @@ import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
 //$$ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#endif
 
-@Dependencies(require = @Dependency(value = "sodium", versionPredicates = ">0.4.8 <0.4.11"))
+@Dependencies(require = @Dependency(value = "sodium", versionPredicates = ">=0.4.9- <0.4.11-"))
 @Mixin(value = BlockRenderer.class, remap = false)
 public abstract class MixinBlockRenderer_0_4_9 {
     @Shadow(remap = false)

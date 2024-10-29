@@ -61,8 +61,8 @@ public abstract class MixinTerrainRenderContext
     @Dynamic
     @Inject(
             method = {
-            "tessellateBlock", // For fabric-renderer-indigo 0.5.0 and above
-            "tesselateBlock" // For fabric-renderer-indigo 0.5.0 below
+                    "tessellateBlock", // For fabric-renderer-indigo 0.5.0 and above
+                    "tesselateBlock" // For fabric-renderer-indigo 0.5.0 below
             },
             at = @At(value = "INVOKE",
                     //#if MC > 11903
@@ -77,9 +77,9 @@ public abstract class MixinTerrainRenderContext
                                       //#endif
                                       //#if MC > 11802
                                       CallbackInfo ci) {
-                                      //#else
-                                      //$$ CallbackInfoReturnable<Boolean> cir) {
-                                      //#endif
+        //#else
+        //$$ CallbackInfoReturnable<Boolean> cir) {
+        //#endif
         WorldEaterMineHelper.emitCustomBlockQuads(blockInfo.blockView, blockInfo.blockState, blockInfo.blockPos, blockInfo.randomSupplier, this);
     }
 }

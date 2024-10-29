@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
 
-@Dependencies(require = @Dependency(value = "sodium", versionPredicates = ">0.4.8 <0.5"))
+@Dependencies(require = @Dependency(value = "sodium", versionPredicates = ">=0.4.9- <0.5-"))
 @Pseudo
 @Mixin(value = BlockRenderer.class, remap = false)
 public class MixinBlockRenderer_0_4_9 {
