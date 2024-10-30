@@ -103,7 +103,7 @@ jobs:
           # modrinth-token: ${{ secrets.MODRINTH }}
           # curseforge-id:
           # curseforge-token: ${{ secrets.CF_API_TOKEN }}
-          github-tag: ${{ inputs.publish_target_release_tag }}
+          github-tag: ${{ github.ref_name }}.${{ github.run_number }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-generate-changelog: true
           files: ${{ steps.file_info.outputs.path }}
