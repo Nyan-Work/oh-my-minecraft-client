@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.hendrixshen.magiclib.compat.minecraft.api.network.chat.ComponentCompatApi;
+import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.function.BiFunction;
 public class ClientEntityAnchorArgument implements ArgumentType<ClientEntityAnchorArgument.Anchor> {
     private static final Collection<String> EXAMPLES = Arrays.asList("eyes", "feet");
     private static final DynamicCommandExceptionType ERROR_INVALID = new DynamicCommandExceptionType(
-            object -> ComponentCompatApi.translatable("argument.anchor.invalid", object)
+            object -> ComponentCompat.translatable("argument.anchor.invalid", object)
     );
 
     public static ClientEntityAnchorArgument.Anchor getAnchor(@NotNull CommandContext<FabricClientCommandSource> commandContext, String string) {
