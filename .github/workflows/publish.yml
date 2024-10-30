@@ -1,0 +1,126 @@
+name: step.publish
+on:
+  workflow_call:
+    inputs:
+      publish_channel:
+        type: string
+        required: true
+      publish_mc_ver:
+        type: string
+        required: true
+      publish_platform:
+        type: string
+        required: true
+      publish_target_release_tag:
+        description: |-
+          The tag of the release you want to append the artifact to.
+        type: string
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Allow the mod publish step to add assets to release
+    # https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout the sources
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: build-artifacts
+      - name: Get git info
+        id: get_git_info
+        run: |
+          short_sha=$(echo ${GITHUB_SHA} | cut -c1-7)
+          commit_count=$(git log | grep -e '^commit [a-zA-Z0-9]*' | wc -l)
+          echo "short_sha=$short_sha" >> $GITHUB_OUTPUT
+          echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+      - name: Get github release information
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        id: get_release
+        uses: cardinalby/git-get-release-action@1.2.5
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag: ${{ github.event.inputs.publish_target_release_tag }}
+      - name: Read Properties mod info
+        id: mod_info
+        uses: christian-draeger/read-properties@1.1.1
+        with:
+          path: gradle.properties
+          properties: 'mod.name mod.version'
+      - name: Prepare file information
+        id: file_info
+        run: |
+          shopt -s extglob
+          FILE_PATHS=$(ls ${{ format('build-artifacts/{0}-{1}/build/libs/!(*-@(dev|sources|javadoc)).jar', inputs.publish_mc_ver, inputs.publish_platform) }})
+          
+          if (( ${#FILE_PATHS[@]} != 1 )); then
+              echo "Error: Found ${#FILE_PATHS[@]} files, expected exactly 1"
+              exit 1
+          else
+              FILE_PATH=${FILE_PATHS[0]}
+          fi
+          
+          FILE_NAME=$(basename $FILE_PATH)
+          FILE_HASH=$(sha256sum $FILE_PATH | awk '{ print $1 }')
+          echo "path=$FILE_PATH" >> $GITHUB_OUTPUT
+          echo "name=$FILE_NAME" >> $GITHUB_OUTPUT
+          echo "hash=$FILE_HASH" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+      - name: Prepare changelog (Dev Channel)
+        if: ${{ inputs.publish_channel == 'dev' }}
+        uses: actions/github-script@v7
+        id: changelog_dev
+        with:
+          script: return process.env.CHANGELOG
+          result-encoding: string
+        env:
+          CHANGELOG: |-
+            **This version is automatically released by CI Build**
+            
+            Latest commit log:
+            
+            ${{ github.event.head_commit.message }}
+            
+            -------
+            
+            Build Information
+            
+            - File name: `${{ steps.file_info.outputs.name }}`
+            - SHA-256: `${{ steps.file_info.outputs.hash }}`
+            - Built from: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      - name: Publish Minecraft Mods (Dev Channel)
+        if: ${{ inputs.publish_channel == 'dev' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          # modrinth-id:
+          # modrinth-token: ${{ secrets.MODRINTH }}
+          # curseforge-id:
+          # curseforge-token: ${{ secrets.CF_API_TOKEN }}
+          github-tag: ${{ inputs.publish_target_release_tag }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-generate-changelog: true
+          files: ${{ steps.file_info.outputs.path }}
+          name: ${{ format('{0} {1}.{2} for Minecraft {3} ({4})', steps.mod_info.outputs.mod-name, steps.mod_info.outputs.mod-version, steps.get_git_info.outputs.commit_count, inputs.publish_mc_ver, inputs.publish_platform) }}
+          version: ${{ format('mc-{0}-{1}-v{2}.{3}', inputs.publish_mc_ver, inputs.publish_platform, steps.mod_info.outputs.mod-version, steps.get_git_info.outputs.commit_count) }}
+          version-type: release
+          github-changelog: ${{ format('{0}{1}', github.event.release.body, steps.get_release.outputs.body) }}
+          modrinth-changelog: ${{ steps.changelog.outputs.result }}
+          curseforge-changelog: ${{ steps.changelog.outputs.result }}
+          loaders: |
+            ${{ inputs.publish_platform }}
+          game-versions: |
+            ${{ inputs.publish_mc_ver }}
+          game-version-filter: any
+          dependencies: |
+            fabric(required){modrinth:P7dR8mSH}{curseforge:306612}#(ignore:github)
+            magiclib(required)
+            malilib(required)
+          retry-attempts: 2
+          retry-delay: 10000
