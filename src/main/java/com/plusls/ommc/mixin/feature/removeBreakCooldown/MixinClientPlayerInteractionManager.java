@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.removeBreakCooldown;
 
-import com.plusls.ommc.config.Configs;
+import com.plusls.ommc.game.Configs;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,13 +16,18 @@ public class MixinClientPlayerInteractionManager {
     @Shadow
     private int destroyDelay;
 
-    @Inject(method = "continueDestroyBlock",
-            at = @At(value = "FIELD",
+    @Inject(
+            method = "continueDestroyBlock",
+            at = @At(
+                    value = "FIELD",
                     target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyDelay:I",
                     opcode = Opcodes.PUTFIELD,
-                    ordinal = 2, shift = At.Shift.AFTER))
+                    ordinal = 2,
+                    shift = At.Shift.AFTER
+            )
+    )
     private void removeBreakingCooldown(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
-        if (Configs.removeBreakingCooldown && !Configs.forceBreakingCooldown) {
+        if (Configs.removeBreakingCooldown.getBooleanValue() && !Configs.forceBreakingCooldown.getBooleanValue()) {
             destroyDelay = 0;
         }
     }

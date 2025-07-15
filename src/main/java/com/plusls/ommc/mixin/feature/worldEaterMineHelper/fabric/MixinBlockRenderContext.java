@@ -1,7 +1,6 @@
 package com.plusls.ommc.mixin.feature.worldEaterMineHelper.fabric;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderContext;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -22,17 +21,14 @@ import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractBlockRende
 
 //#if MC > 11802
 import net.minecraft.util.RandomSource;
-//#else
-//$$ import java.util.Random;
-//#endif
-
-//#if MC > 11802
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#else
 //$$ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//$$ import java.util.Random;
 //#endif
 
 //#if MC > 11404
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 //#else
 //$$ import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -91,6 +87,6 @@ public abstract class MixinBlockRenderContext extends AbstractBlockRenderContext
             //#else
             //$$ CallbackInfoReturnable<Boolean> cir) {
             //#endif
-        WorldEaterMineHelperUtil.emitCustomBlockQuads(blockView, state, pos, this.blockInfo.randomSupplier, this);
+        WorldEaterMineHelper.emitCustomBlockQuads(blockView, state, pos, this.blockInfo.randomSupplier, this);
     }
 }

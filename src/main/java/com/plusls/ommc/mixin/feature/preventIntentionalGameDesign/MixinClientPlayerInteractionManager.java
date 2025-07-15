@@ -1,6 +1,6 @@
 package com.plusls.ommc.mixin.feature.preventIntentionalGameDesign;
 
-import com.plusls.ommc.config.Configs;
+import com.plusls.ommc.game.Configs;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -21,29 +21,37 @@ import net.minecraft.world.level.block.RespawnAnchorBlock;
 
 @Mixin(MultiPlayerGameMode.class)
 public class MixinClientPlayerInteractionManager {
-    @Inject(method = "useItemOn",
-            at = @At(value = "HEAD"),
-            cancellable = true)
-    private void preventIntentionalGameDesign(LocalPlayer player,
-                                              //#if MC <= 11802
-                                              //$$ ClientLevel world,
-                                              //#endif
-                                              InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
+    @Inject(
+            method = "useItemOn",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void preventIntentionalGameDesign(
+            LocalPlayer player,
+            //#if MC <= 11802
+            //$$ ClientLevel level,
+            //#endif
+            InteractionHand hand,
+            BlockHitResult hitResult,
+            CallbackInfoReturnable<InteractionResult> cir
+    ) {
         //#if MC > 11802
-        ClientLevel world = (ClientLevel) player.level();
+        ClientLevel level = (ClientLevel) player.level();
         //#endif
-        if (!Configs.preventIntentionalGameDesign) {
+
+        if (!Configs.preventIntentionalGameDesign.getBooleanValue()) {
             return;
         }
+
         BlockPos blockPos = hitResult.getBlockPos();
-        BlockState blockState = world.getBlockState(blockPos);
+        BlockState blockState = level.getBlockState(blockPos);
         if ((blockState.getBlock() instanceof BedBlock &&
                 //#if MC > 11502
-                !world.dimensionType().bedWorks()) ||
-                (blockState.getBlock() instanceof RespawnAnchorBlock && !world.dimensionType().respawnAnchorWorks())
-                //#else
-                //$$ !world.getDimension().mayRespawn())
-                //#endif
+                !level.dimensionType().bedWorks()) ||
+                (blockState.getBlock() instanceof RespawnAnchorBlock && !level.dimensionType().respawnAnchorWorks())
+            //#else
+            //$$ !level.getDimension().mayRespawn())
+            //#endif
         ) {
             cir.setReturnValue(InteractionResult.SUCCESS);
         }

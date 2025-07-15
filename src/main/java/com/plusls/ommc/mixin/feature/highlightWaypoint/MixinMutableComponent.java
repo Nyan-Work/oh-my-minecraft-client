@@ -1,5 +1,9 @@
 package com.plusls.ommc.mixin.feature.highlightWaypoint;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentContents;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -11,23 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-//#if MC > 12002
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentContents;
-import net.minecraft.network.chat.Style;
-//#else
-//$$ import top.hendrixshen.magiclib.compat.preprocess.api.DummyClass;
-//#endif
-
-//#if MC > 12002
 @Mixin(MutableComponent.class)
-//#else
-//$$ @Mixin(DummyClass.class)
-//#endif
 public class MixinMutableComponent {
-
-    //#if MC > 12002
     @Final
     @Mutable
     @Shadow
@@ -39,5 +28,4 @@ public class MixinMutableComponent {
             siblings = new ArrayList<>(list);
         }
     }
-    //#endif
 }

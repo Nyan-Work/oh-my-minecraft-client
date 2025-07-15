@@ -15,7 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import top.hendrixshen.magiclib.compat.minecraft.api.network.chat.ComponentCompatApi;
+import top.hendrixshen.magiclib.api.compat.minecraft.network.chat.ComponentCompat;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,9 +25,9 @@ import java.util.concurrent.CompletableFuture;
 // Modified from brigadier
 public class ClientBlockPosArgument implements ArgumentType<ClientCoordinates> {
     private static final Collection<String> EXAMPLES = Arrays.asList("0 0 0", "~ ~ ~", "^ ^ ^", "^1 ^ ^-5", "~0.5 ~1 ~-5");
-    public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(ComponentCompatApi.translatable("argument.pos.unloaded"));
-    public static final SimpleCommandExceptionType ERROR_OUT_OF_WORLD = new SimpleCommandExceptionType(ComponentCompatApi.translatable("argument.pos.outofworld"));
-    public static final SimpleCommandExceptionType ERROR_OUT_OF_BOUNDS = new SimpleCommandExceptionType(ComponentCompatApi.translatable("argument.pos.outofbounds"));
+    public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(ComponentCompat.translatable("argument.pos.unloaded"));
+    public static final SimpleCommandExceptionType ERROR_OUT_OF_WORLD = new SimpleCommandExceptionType(ComponentCompat.translatable("argument.pos.outofworld"));
+    public static final SimpleCommandExceptionType ERROR_OUT_OF_BOUNDS = new SimpleCommandExceptionType(ComponentCompat.translatable("argument.pos.outofbounds"));
 
     @Contract(value = " -> new", pure = true)
     public static @NotNull ClientBlockPosArgument blockPos() {

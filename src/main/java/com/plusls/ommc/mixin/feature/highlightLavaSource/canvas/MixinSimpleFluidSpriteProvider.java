@@ -1,7 +1,7 @@
 package com.plusls.ommc.mixin.feature.highlightLavaSource.canvas;
 
-import com.plusls.ommc.config.Configs;
-import com.plusls.ommc.feature.highlightLavaSource.LavaSourceResourceLoader;
+import com.plusls.ommc.game.Configs;
+import com.plusls.ommc.impl.feature.highlightLavaSource.LavaSourceResourceLoader;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -12,42 +12,48 @@ import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependencies;
-import top.hendrixshen.magiclib.dependency.api.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependency;
+import top.hendrixshen.magiclib.api.dependency.annotation.Dependencies;
 
-
-@Dependencies(and = @Dependency("frex"))
+@Dependencies(require = @Dependency("frex"))
 @Pseudo
 @Mixin(targets = "io.vram.frex.impl.model.SimpleFluidSpriteProvider", remap = false)
 public abstract class MixinSimpleFluidSpriteProvider {
-    private boolean isLava;
-    private final TextureAtlasSprite[] lavaSourceSpites = new TextureAtlasSprite[3];
+    @Unique
+    private boolean ommc$isLava;
+    @Unique
+    private final TextureAtlasSprite[] ommc$lavaSourceSpites = new TextureAtlasSprite[3];
 
     @Dynamic
-    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"))
     private void preInit(ResourceLocation stillSpriteName, ResourceLocation flowingSpriteName,
                          ResourceLocation overlaySpriteName, CallbackInfo ci) {
-        this.isLava = stillSpriteName.toString().equals("minecraft:block/lava_still");
+        this.ommc$isLava = stillSpriteName.toString().equals("minecraft:block/lava_still");
     }
 
     @Dynamic
-    @Inject(method = "getFluidSprites", at = @At(value = "RETURN"), cancellable = true)
+    @Inject(
+            method = "getFluidSprites",
+            at = @At("RETURN"),
+            cancellable = true
+    )
     private void setLavaSprite(BlockAndTintGetter view, BlockPos pos,
                                FluidState state, CallbackInfoReturnable<TextureAtlasSprite[]> cir) {
-        if (this.isLava) {
-            if (lavaSourceSpites[0] != LavaSourceResourceLoader.lavaSourceSpites[0]) {
-                lavaSourceSpites[0] = LavaSourceResourceLoader.lavaSourceSpites[0];
-                lavaSourceSpites[1] = LavaSourceResourceLoader.lavaSourceSpites[1];
+        if (this.ommc$isLava) {
+            if (this.ommc$lavaSourceSpites[0] != LavaSourceResourceLoader.lavaSourceSpites[0]) {
+                this.ommc$lavaSourceSpites[0] = LavaSourceResourceLoader.lavaSourceSpites[0];
+                this.ommc$lavaSourceSpites[1] = LavaSourceResourceLoader.lavaSourceSpites[1];
             }
-            if (Configs.highlightLavaSource && state.is(FluidTags.LAVA) &&
+
+            if (Configs.highlightLavaSource.getBooleanValue() && state.is(FluidTags.LAVA) &&
                     view.getBlockState(pos).getValue(LiquidBlock.LEVEL) == 0) {
-                cir.setReturnValue(lavaSourceSpites);
+                cir.setReturnValue(this.ommc$lavaSourceSpites);
             }
         }
     }
-
 }

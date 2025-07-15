@@ -2,7 +2,7 @@ package com.plusls.ommc.mixin.feature.worldEaterMineHelper;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.plusls.ommc.feature.worldEaterMineHelper.WorldEaterMineHelperUtil;
+import com.plusls.ommc.impl.feature.worldEaterMineHelper.WorldEaterMineHelper;
 import com.plusls.ommc.mixin.accessor.AccessorBlockModel;
 import net.minecraft.client.renderer.block.model.BlockElement;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
@@ -18,9 +18,11 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import top.hendrixshen.magiclib.api.compat.minecraft.resources.ResourceLocationCompat;
 import top.hendrixshen.magiclib.util.MiscUtil;
 
 import java.util.List;
@@ -35,7 +37,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 
 @Mixin(value = BlockModel.class, priority = 999)
 public abstract class MixinJsonUnbakedModel implements UnbakedModel {
-
+    @Unique
     private final ThreadLocal<Boolean> ommc$bakeTag = ThreadLocal.withInitial(() -> Boolean.TRUE);
 
     @Shadow
@@ -47,14 +49,18 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
 
     @SuppressWarnings("InvalidInjectorMethodSignature")
     @Inject(
-            //#if MC >= 11903
+            //#if MC > 12006
+            //$$ method = "bake(Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Z)Lnet/minecraft/client/resources/model/BakedModel;",
+            //#elseif MC > 11902
             method = "bake(Lnet/minecraft/client/resources/model/ModelBaker;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;",
             //#elseif MC > 11404
             //$$ method = "bake(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;Lnet/minecraft/resources/ResourceLocation;Z)Lnet/minecraft/client/resources/model/BakedModel;",
             //#else
             //$$ method = "bake(Lnet/minecraft/client/resources/model/ModelBakery;Lnet/minecraft/client/renderer/block/model/BlockModel;Ljava/util/function/Function;Lnet/minecraft/client/resources/model/ModelState;)Lnet/minecraft/client/resources/model/BakedModel;",
             //#endif
-            at = @At(value = "HEAD"), cancellable = true)
+            at = @At(value = "HEAD"),
+            cancellable = true
+    )
     private void generateCustomBakedModel(
             //#if MC > 11902
             ModelBaker baker,
@@ -69,10 +75,13 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
             //#endif
             ModelState modelSettings,
             //#if MC > 11404
+            //#if MC < 12100
             ResourceLocation resourceLocation,
+            //#endif
             boolean hasDepth,
             //#endif
-            CallbackInfoReturnable<BakedModel> cir) {
+            CallbackInfoReturnable<BakedModel> cir
+    ) {
         if (!this.ommc$bakeTag.get()) {
             return;
         }
@@ -84,7 +93,7 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
         }
 
         String[] splitResult = identifier.getPath().split("/");
-        ResourceLocation blockId = new ResourceLocation(splitResult[splitResult.length - 1]);
+        ResourceLocation blockId = ResourceLocationCompat.parse(splitResult[splitResult.length - 1]);
         //#if MC >= 11903
         Block block = BuiltInRegistries.BLOCK.get(blockId);
         //#else
@@ -102,14 +111,18 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
         originalModelElements.clear();
 
         for (BlockElement modelElement : originalModelElementsBackup) {
-            Vector3f origin = new Vector3f(0F, 80F, 180F);
+            Vector3f origin = new Vector3f(0F, 67F, 150F);
             origin.mul(0.0625F);
             BlockElementRotation newModelRotation = new BlockElementRotation(origin, Direction.Axis.X, 45, false);
             Map<Direction, BlockElementFace> faces = Maps.newHashMap();
 
             for (Map.Entry<Direction, BlockElementFace> entry : modelElement.faces.entrySet()) {
                 BlockElementFace originalModelElementFace = entry.getValue();
+                //#if MC > 12006
+                //$$ BlockElementFace modelElementFace = new BlockElementFace(null, originalModelElementFace.tintIndex(), originalModelElementFace.texture(), originalModelElementFace.uv());
+                //#else
                 BlockElementFace modelElementFace = new BlockElementFace(null, originalModelElementFace.tintIndex, originalModelElementFace.texture, originalModelElementFace.uv);
+                //#endif
                 faces.put(entry.getKey(), modelElementFace);
             }
 
@@ -140,13 +153,15 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings
                 //#endif
         );
-        WorldEaterMineHelperUtil.customModels.put(block, customBakedModel);
+        WorldEaterMineHelper.customModels.put(block, customBakedModel);
 
         // Full model bake
         originalModelElements.addAll(originalModelElementsBackup);
@@ -156,13 +171,15 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings
                 //#endif
         );
-        WorldEaterMineHelperUtil.customFullModels.put(block, customFullBakedModel);
+        WorldEaterMineHelper.customFullModels.put(block, customFullBakedModel);
         // Restore model attribute
         ((AccessorBlockModel) blockModel).setHasAmbientOcclusion(originalAmbientOcclusion);
         originalModelElements.clear();
@@ -174,7 +191,9 @@ public abstract class MixinJsonUnbakedModel implements UnbakedModel {
                 textureGetter,
                 //#if MC > 11404
                 modelSettings,
+                //#if MC <= 12006
                 identifier,
+                //#endif
                 hasDepth
                 //#else
                 //$$ modelSettings
